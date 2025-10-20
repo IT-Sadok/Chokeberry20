@@ -35,6 +35,19 @@ public class LibraryManagementService : ILibraryManagementService
         return book;
     }
     
+    public Book GetBookByAuthor(string title)
+    {
+        var list = JsonConverter.GetAllBooksFromJsonFile(PATH);
+        var book = list.Where(b => b.Author == title).FirstOrDefault();
+
+        if (book == null)
+        {
+            Console.WriteLine("Book not found!");
+        }
+
+        return book;
+    }
+    
     public Book GetBookByTitle(string title)
     {
         var list = JsonConverter.GetAllBooksFromJsonFile(PATH);

@@ -41,9 +41,9 @@ public class ConsoleHelper
                     DisplaySingleResult(service.GetBookByTitle(title));
                     break;
                 case "6":
-                    Console.WriteLine("Sure! Enter id of the book you are looking for!");
-                    int idForGettting = ValidateInput();
-                    DisplaySingleResult(service.GetBookById(idForGettting));
+                    Console.WriteLine("Sure! Enter author of the book you are looking for!");
+                    string author = Console.ReadLine();
+                    DisplaySingleResult(service.GetBookByAuthor(author));
                     break;
                 case "7":
                     Console.WriteLine("Ok! Enter id of the book you want to borrow");
@@ -70,7 +70,7 @@ public class ConsoleHelper
         Console.WriteLine("3 - Add new book to the library");
         Console.WriteLine("4 - Delete book from the library");
         Console.WriteLine("5 - Find book by title");
-        Console.WriteLine("6 - Find book by id");
+        Console.WriteLine("6 - Find book by author");
         Console.WriteLine("7 - Borrow a book from the library");
         Console.WriteLine("8 - Return a book to the library");
         Console.WriteLine("0 - Exit the library");

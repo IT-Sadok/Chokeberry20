@@ -6,8 +6,8 @@ public interface ILibraryManagementService
 {
     public List<Book> GetBooks();
     public List<Book> GetAvailableBooks();
-    public Book GetBookById(int id);
-    public Book GetBookByTitle(string bookName);
+    public Book GetBookByAuthor(string author);
+    public Book GetBookByTitle(string title);
     public bool AddBook(Book book);
     public bool UpdateBook(int id, Book book);
     public bool DeleteBookById(int id);
