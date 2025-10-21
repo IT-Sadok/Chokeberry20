@@ -5,24 +5,35 @@ namespace LibraryManager;
 
 class Program
 {
+    public static readonly string FileName = "booksData";
     static void Main(string[] args)
     {
-        LibraryManagementService  service = new LibraryManagementService();
+        LibraryManagementService  service = new LibraryManagementService();        
         
-        const string PATH = @"..\..\..\Data\booksData.json";
-        
-        if (File.Exists(PATH))
+        if (File.Exists(FileName))
         {
-            Console.WriteLine("File exists");
+            Console.WriteLine("File exists!");
         }
         else
         {
             Console.WriteLine("File does not exist, creating...");
-            File.WriteAllText(PATH, "");
-            Console.WriteLine("File created");
+            File.WriteAllText(FileName, "");
+            Console.WriteLine("File created!");
         }
 
         Console.WriteLine("Welcome to the Library Manager!");
-        ConsoleHelper.ShowConsoleMenu(service);
+
+        try
+        {
+            ConsoleHelper.ShowConsoleMenu(service);
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine($"Ooops! {ex.Message}");
+        }
+        finally
+        {
+            service.SaveChanges(); 
+        }        
     }
 }

@@ -11,6 +11,7 @@ public class ConsoleHelper
 
         while (!exit)
         {
+            Console.WriteLine("-------------------------------------");
             Console.WriteLine("Please choose one of the options:");
             ShowOptions();
             string input = Console.ReadLine();
@@ -19,11 +20,11 @@ public class ConsoleHelper
             {
                 case "1":
                     Console.WriteLine("Sure! Here are all the books!");
-                    DisplayResult(service.GetBooks());
+                    DisplayBooks(service.GetBooks());
                     break;
                 case "2":
                     Console.WriteLine("Sure! Here are all available books!");
-                    DisplayResult(service.GetAvailableBooks());
+                    DisplayBooks(service.GetAvailableBooks());
                     break;
                 case "3":
                     Console.WriteLine("Lets create a new book!");
@@ -31,29 +32,36 @@ public class ConsoleHelper
                     service.AddBook(newBook);
                     break;
                 case "4":
-                    Console.WriteLine("No problem, enter id of the book you want to delete!");
-                    int idForDeletion = ValidateInput();
-                    service.DeleteBookById(idForDeletion);
+                    Console.WriteLine("Lets update a book, enter a title!");
+                    string bookTitleForUpdate = Console.ReadLine();
+                    Console.WriteLine("Now enter new value for book!");
+                    var updatedBook = CreateBookFromInput();
+                    service.UpdateBook(bookTitleForUpdate, updatedBook);
                     break;
                 case "5":
-                    Console.WriteLine("Sure! Enter title of the book you are looking for!");
-                    string title = Console.ReadLine();
-                    DisplaySingleResult(service.GetBookByTitle(title));
+                    Console.WriteLine("No problem, enter title of the book you want to delete!");
+                    string titleForDelete = Console.ReadLine();
+                    service.DeleteBookByTitle(titleForDelete);
                     break;
                 case "6":
-                    Console.WriteLine("Sure! Enter author of the book you are looking for!");
-                    string author = Console.ReadLine();
-                    DisplaySingleResult(service.GetBookByAuthor(author));
+                    Console.WriteLine("Sure! Enter title of the book you are looking for!");
+                    string titleForSearch = Console.ReadLine();
+                    DisplaySingleSearchResult(service.GetBookByTitle(titleForSearch));
                     break;
                 case "7":
-                    Console.WriteLine("Ok! Enter id of the book you want to borrow");
-                    int idForBorrowing = ValidateInput();
-                    service.BorrowBook(idForBorrowing);
+                    Console.WriteLine("Sure! Enter author of the book you are looking for!");
+                    string author = Console.ReadLine();
+                    DisplaySingleSearchResult(service.GetBookByAuthor(author));
                     break;
                 case "8":
-                    Console.WriteLine("Great! Enter id of the book you want to return");
-                    int idForReturning = ValidateInput();
-                    service.ReturnBook(idForReturning);
+                    Console.WriteLine("Ok! Enter title of the book you want to borrow");
+                    string titleForBorrowing =  Console.ReadLine();
+                    service.BorrowBook(titleForBorrowing);
+                    break;
+                case "9":
+                    Console.WriteLine("Great! Enter title of the book you want to return");
+                    string titleForReturning =  Console.ReadLine();
+                    service.ReturnBook(titleForReturning);
                     break;
                 case "0":
                     exit = true;
@@ -62,84 +70,47 @@ public class ConsoleHelper
         } 
     }
 
-    public static void ShowOptions()
+    private static void ShowOptions()
     {
         Console.WriteLine("----------------------------------------");
         Console.WriteLine("1 - List all books in the library");
         Console.WriteLine("2 - List only available books in the library");
         Console.WriteLine("3 - Add new book to the library");
-        Console.WriteLine("4 - Delete book from the library");
-        Console.WriteLine("5 - Find book by title");
-        Console.WriteLine("6 - Find book by author");
-        Console.WriteLine("7 - Borrow a book from the library");
-        Console.WriteLine("8 - Return a book to the library");
-        Console.WriteLine("0 - Exit the library");
+        Console.WriteLine("4 - Update the book by title1");
+        Console.WriteLine("5 - Delete book from the library");
+        Console.WriteLine("6 - Find book by title");
+        Console.WriteLine("7 - Find book by author");
+        Console.WriteLine("8 - Borrow a book from the library");
+        Console.WriteLine("9 - Return a book to the library");
+        Console.WriteLine("0 - Exit and save changes");
         Console.WriteLine("----------------------------------------");
     }
 
-    public static Book CreateBookFromInput()
+    private static Book CreateBookFromInput()
     {
         var newBook = new Book();
-        var formValid = false;
-
-        while (!formValid)
-        {
-            try
-            {
-                Console.WriteLine("Please enter a unique number id!");
-                newBook.Id = int.Parse(Console.ReadLine());
+        
+        Console.WriteLine("Please enter a book title!");
+        newBook.Title = Console.ReadLine();
             
-                Console.WriteLine("Please enter a book title!");
-                newBook.Title = Console.ReadLine();
+        Console.WriteLine("Please enter an author!");
+        newBook.Author = Console.ReadLine();
             
-                Console.WriteLine("Please enter an author!");
-                newBook.Author = Console.ReadLine();
-            
-                Console.WriteLine("Please enter a year!");
-                newBook.Year = int.Parse(Console.ReadLine());
-                
-                formValid = true;
-            }
-            catch (Exception e) 
-            {
-                Console.WriteLine("WITH NUMBERS!!!");
-            }
-        }
+        Console.WriteLine("Please enter a year!");
+        newBook.Year = int.Parse(Console.ReadLine());
 
         return newBook;
     }
-    
-    public static int ValidateInput()
-    {
-        var inputValid = false;
-        int input = 0;
-        
-        while (!inputValid)
-        {
-            try
-            {
-                input =  int.Parse(Console.ReadLine());
-                
-                inputValid = true;
-            }
-            catch (Exception e) 
-            {
-                Console.WriteLine("WITH NUMBERS!!!");
-            }
-        }
 
-        return input;
-    }
-
-    public static void DisplayResult(List<Book> books)
+    private static void DisplayBooks(List<Book> books)
     {
         foreach (var book in books)
         {
             Console.WriteLine($"- {book.Title}");
         };
     }
-    
-    public static void DisplaySingleResult(Book book)
+
+    private static void DisplaySingleSearchResult(Book book)
     {
         Console.WriteLine($"- {book.Title}");
     }
