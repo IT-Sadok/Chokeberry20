@@ -5,10 +5,10 @@ namespace LibraryManager;
 
 class Program
 {
-    public static readonly string FileName = "booksData";
+    private static readonly string FileName = "booksData.json";
     static void Main(string[] args)
     {
-        LibraryManagementService  service = new LibraryManagementService();        
+        LibraryManagementService  service = new LibraryManagementService(FileName);        
         
         if (File.Exists(FileName))
         {

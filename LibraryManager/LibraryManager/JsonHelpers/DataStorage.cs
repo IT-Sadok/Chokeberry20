@@ -3,7 +3,7 @@ using LibraryManager.Models;
 
 namespace LibraryManager.JsonHelpers;
 
-public class JsonListConverter
+public class DataStorage
 {
     public static void AddBooksToJsonFile(List<Book> books, string filePath)
     {

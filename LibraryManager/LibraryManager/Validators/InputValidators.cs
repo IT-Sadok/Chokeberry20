@@ -24,11 +24,11 @@ public class InputValidators
 
     public static bool IsStringValid(string stringToValidate)
     {
-        if (stringToValidate != null && stringToValidate != String.Empty)
+        if (string.IsNullOrEmpty(stringToValidate) && string.IsNullOrWhiteSpace(stringToValidate))
         {
-            return true;
+            return false;
         }
         
-        return false;
+        return true;
     }
 }

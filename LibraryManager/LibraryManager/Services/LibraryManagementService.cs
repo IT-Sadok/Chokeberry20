@@ -1,3 +1,4 @@
+using LibraryManager.Enums;
 using LibraryManager.Interfaces;
 using LibraryManager.JsonHelpers;
 using LibraryManager.Models;
@@ -7,24 +8,23 @@ namespace LibraryManager.Services;
 
 public class LibraryManagementService : ILibraryManagementService
 {
-    private readonly string _path;
-    
+    private readonly string _filePath;
     private readonly List<Book> _books;
 
-    public LibraryManagementService()
+    public LibraryManagementService(string filePath)
     {
-        _path = Path.GetFullPath(Program.FileName);
-        _books = JsonListConverter.GetAllBooksFromJsonFile(_path);
+        _filePath = filePath;
+        _books = DataStorage.GetAllBooksFromJsonFile(_filePath);
     }
 
-    public List<Book> GetBooks()
+    public List<Book> GetBooks(BookStatus? status = null)
     {
+        if (status == BookStatus.Available)
+        {
+            return _books.Where(b => b.Status == BookStatus.Available).ToList();
+        }
+        
         return _books;
-    }
-
-    public List<Book> GetAvailableBooks()
-    {
-        return _books.Where(b => b.IsAvailable).ToList();
     }
 
     public Book GetBookById(Guid id)
@@ -45,7 +45,7 @@ public class LibraryManagementService : ILibraryManagementService
 
         if (book == null)
         {
-            throw new Exception("Book not found!");
+            throw new Exception($"Book with {title} not found!");
         }
 
         return book;
@@ -57,7 +57,7 @@ public class LibraryManagementService : ILibraryManagementService
 
         if (book == null)
         {
-            throw new Exception("Book not found!");
+            throw new Exception($"Book with {title} not found!");
         }
 
         return book;
@@ -72,21 +72,21 @@ public class LibraryManagementService : ILibraryManagementService
         }
     }
 
-    public void UpdateBook(string title, Book updatedBook)
+    public void UpdateBookByTitle(string searchTitle, Book updatedBook)
     {
-        if (InputValidators.IsStringValid(title) || InputValidators.AreBookPropertiesValid(updatedBook))
+        if (InputValidators.IsStringValid(searchTitle) || InputValidators.AreBookPropertiesValid(updatedBook))
         { 
-            var oldBook = _books.FirstOrDefault(b => b.Title == title);
+            var oldBook = _books.FirstOrDefault(b => b.Title == searchTitle);
         
             if (oldBook == null)
             {
-                throw new Exception("Book not found!");
+                throw new Exception($"Book with {searchTitle} not found!");
             }
             
             oldBook.Title = updatedBook.Title;
             oldBook.Author = updatedBook.Author;
             oldBook.Year = updatedBook.Year;
-            oldBook.IsAvailable = updatedBook.IsAvailable;
+            oldBook.Status = updatedBook.Status;
         }
     }
 
@@ -96,7 +96,7 @@ public class LibraryManagementService : ILibraryManagementService
 
         if (oldBook == null)
         {
-            throw new Exception("Book not found!");
+            throw new Exception($"Book with {title} not found!");
         }
         
         _books.RemoveAll(b => b.Title == title);
@@ -106,32 +106,30 @@ public class LibraryManagementService : ILibraryManagementService
     {
         var borrowedBook = GetBookByTitle(title);
 
-        if (!borrowedBook.IsAvailable)
+        if (borrowedBook.Status == BookStatus.Borrowed)
         {
-            throw new Exception("Book is already borrowed!");
+            throw new Exception($"Book with {title} is already borrowed!");
         }
         
-        borrowedBook.IsAvailable = false;
-        UpdateBook(title, borrowedBook);
+        borrowedBook.Status = BookStatus.Borrowed;
+        UpdateBookByTitle(title, borrowedBook);
     }
     
     public void ReturnBook(string title)
     {
         var borrowedBook = GetBookByTitle(title);
 
-        if (borrowedBook.IsAvailable)
+        if (borrowedBook.Status == BookStatus.Available)
         {
-            throw new Exception("Book is not borrowed yet!");
+            throw new Exception($"Book with {title} is not borrowed yet!");
         }
         
-        borrowedBook.IsAvailable = true;
-        UpdateBook(title, borrowedBook);
+        borrowedBook.Status = BookStatus.Available;
+        UpdateBookByTitle(title, borrowedBook);
     }
 
     public void SaveChanges()
     {
-        JsonListConverter.AddBooksToJsonFile(_books, _path);
+        DataStorage.AddBooksToJsonFile(_books, _filePath);
     }
-
-    
 }

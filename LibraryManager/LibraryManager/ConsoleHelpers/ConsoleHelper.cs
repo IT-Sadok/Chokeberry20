@@ -1,3 +1,4 @@
+using LibraryManager.Enums;
 using LibraryManager.Models;
 using LibraryManager.Services;
 
@@ -24,7 +25,7 @@ public class ConsoleHelper
                     break;
                 case "2":
                     Console.WriteLine("Sure! Here are all available books!");
-                    DisplayBooks(service.GetAvailableBooks());
+                    DisplayBooks(service.GetBooks(BookStatus.Available));
                     break;
                 case "3":
                     Console.WriteLine("Lets create a new book!");
@@ -36,7 +37,7 @@ public class ConsoleHelper
                     string bookTitleForUpdate = Console.ReadLine();
                     Console.WriteLine("Now enter new value for book!");
                     var updatedBook = CreateBookFromInput();
-                    service.UpdateBook(bookTitleForUpdate, updatedBook);
+                    service.UpdateBookByTitle(bookTitleForUpdate, updatedBook);
                     break;
                 case "5":
                     Console.WriteLine("No problem, enter title of the book you want to delete!");
