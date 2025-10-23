@@ -9,8 +9,8 @@ public interface ILibraryManagementService
     public Book GetBookByAuthor(string author);
     public Book GetBookByTitle(string title);
     public void AddBook(Book book);
-    public void UpdateBookByTitle(string title, Book book);
-    public void DeleteBookByTitle(string title);
-    public void BorrowBook(string title);
-    public void ReturnBook(string title);
+    public void UpdateBookById(int id, Book book);
+    public void DeleteBookById(int id);
+    public void BorrowBook(int id);
+    public void ReturnBook(int id);
 }

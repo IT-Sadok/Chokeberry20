@@ -33,16 +33,16 @@ public class ConsoleHelper
                     service.AddBook(newBook);
                     break;
                 case "4":
-                    Console.WriteLine("Lets update a book, enter a title!");
-                    string bookTitleForUpdate = Console.ReadLine();
+                    Console.WriteLine("Lets update a book, enter an id!");
+                    int idForUpdate =Int32.Parse(Console.ReadLine());
                     Console.WriteLine("Now enter new value for book!");
                     var updatedBook = CreateBookFromInput();
-                    service.UpdateBookByTitle(bookTitleForUpdate, updatedBook);
+                    service.UpdateBookById(idForUpdate, updatedBook);
                     break;
                 case "5":
-                    Console.WriteLine("No problem, enter title of the book you want to delete!");
-                    string titleForDelete = Console.ReadLine();
-                    service.DeleteBookByTitle(titleForDelete);
+                    Console.WriteLine("No problem, enter id of the book you want to delete!");
+                    int idForDelete =Int32.Parse(Console.ReadLine());
+                    service.DeleteBookById(idForDelete);
                     break;
                 case "6":
                     Console.WriteLine("Sure! Enter title of the book you are looking for!");
@@ -55,14 +55,14 @@ public class ConsoleHelper
                     DisplaySingleSearchResult(service.GetBookByAuthor(author));
                     break;
                 case "8":
-                    Console.WriteLine("Ok! Enter title of the book you want to borrow");
-                    string titleForBorrowing =  Console.ReadLine();
-                    service.BorrowBook(titleForBorrowing);
+                    Console.WriteLine("Ok! Enter id of the book you want to borrow");
+                    int idForBorrowing = Int32.Parse(Console.ReadLine());
+                    service.BorrowBook(idForBorrowing);
                     break;
                 case "9":
-                    Console.WriteLine("Great! Enter title of the book you want to return");
-                    string titleForReturning =  Console.ReadLine();
-                    service.ReturnBook(titleForReturning);
+                    Console.WriteLine("Great! Enter id1 of the book you want to return");
+                    int idForReturning = Int32.Parse(Console.ReadLine());
+                    service.ReturnBook(idForReturning);
                     break;
                 case "0":
                     exit = true;
@@ -77,7 +77,7 @@ public class ConsoleHelper
         Console.WriteLine("1 - List all books in the library");
         Console.WriteLine("2 - List only available books in the library");
         Console.WriteLine("3 - Add new book to the library");
-        Console.WriteLine("4 - Update the book by title1");
+        Console.WriteLine("4 - Update the book by title");
         Console.WriteLine("5 - Delete book from the library");
         Console.WriteLine("6 - Find book by title");
         Console.WriteLine("7 - Find book by author");
@@ -107,7 +107,9 @@ public class ConsoleHelper
     {
         foreach (var book in books)
         {
-            Console.WriteLine($"- {book.Title}");
+            Console.WriteLine("-------------------------");
+            Console.WriteLine($"Id - {book.Id}");
+            Console.WriteLine($"Title - {book.Title}");
         };
     }
 

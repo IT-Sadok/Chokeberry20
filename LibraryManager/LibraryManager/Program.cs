@@ -7,9 +7,7 @@ class Program
 {
     private static readonly string FileName = "booksData.json";
     static void Main(string[] args)
-    {
-        LibraryManagementService  service = new LibraryManagementService(FileName);        
-        
+    {  
         if (File.Exists(FileName))
         {
             Console.WriteLine("File exists!");
@@ -20,6 +18,8 @@ class Program
             File.WriteAllText(FileName, "");
             Console.WriteLine("File created!");
         }
+        
+        LibraryManagementService  service = new LibraryManagementService(FileName);
 
         Console.WriteLine("Welcome to the Library Manager!");
 
