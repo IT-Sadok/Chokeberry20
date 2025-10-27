@@ -141,8 +141,6 @@ public class LibraryManagementService : ILibraryManagementService
             return 1;
         }
         
-        int newId = _books.Max(b => b.Id) + 1;
-
-        return newId;
+        return _books.Max(b => b.Id) + 1;
     }
 }

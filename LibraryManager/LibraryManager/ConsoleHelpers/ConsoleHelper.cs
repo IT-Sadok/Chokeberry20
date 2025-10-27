@@ -1,4 +1,5 @@
 using LibraryManager.Enums;
+using LibraryManager.Interfaces;
 using LibraryManager.Models;
 using LibraryManager.Services;
 
@@ -6,13 +7,44 @@ namespace LibraryManager.ConsoleHelpers;
 
 public class ConsoleHelper
 {
-    public static void ShowConsoleMenu(LibraryManagementService service)
+    private readonly ILibraryManagementService _service;
+    private readonly IHighloadSimulator _highLoadSimulator;
+    
+    public ConsoleHelper(ILibraryManagementService service, IHighloadSimulator highLoadSimulator)
+    {
+        _service = service;
+        _highLoadSimulator = highLoadSimulator;
+    }
+
+    public void ShowModes()
+    {
+        Console.WriteLine("-------------------------------------");
+        Console.WriteLine("Please choose which mode you want to use:");
+        Console.WriteLine("Enter 1 to switch to the default mode:");
+        Console.WriteLine("Enter 2 to switch to the stress mode:");
+        int mode = Int32.Parse(Console.ReadLine());
+        switch (mode)
+        {
+            case 1:
+                ShowDefaultConsoleMenu();
+                break;
+            case 2:
+                ShowHighLoadConsoleMenu();
+                break;
+            default:
+                Console.WriteLine("Invalid mode! Restart the program!");
+                break;
+        }
+    }
+    
+    public void ShowDefaultConsoleMenu()
     {
         var exit = false;
 
         while (!exit)
         {
             Console.WriteLine("-------------------------------------");
+            Console.WriteLine("You are in a default mode!");
             Console.WriteLine("Please choose one of the options:");
             ShowOptions();
             string input = Console.ReadLine();
@@ -21,48 +53,114 @@ public class ConsoleHelper
             {
                 case "1":
                     Console.WriteLine("Sure! Here are all the books!");
-                    DisplayBooks(service.GetBooks());
+                    DisplayBooks(_service.GetBooks());
                     break;
                 case "2":
                     Console.WriteLine("Sure! Here are all available books!");
-                    DisplayBooks(service.GetBooks(BookStatus.Available));
+                    DisplayBooks(_service.GetBooks(BookStatus.Available));
                     break;
                 case "3":
                     Console.WriteLine("Lets create a new book!");
                     var newBook = CreateBookFromInput();
-                    service.AddBook(newBook);
+                    _service.AddBook(newBook);
                     break;
                 case "4":
                     Console.WriteLine("Lets update a book, enter an id!");
                     int idForUpdate =Int32.Parse(Console.ReadLine());
                     Console.WriteLine("Now enter new value for book!");
                     var updatedBook = CreateBookFromInput();
-                    service.UpdateBookById(idForUpdate, updatedBook);
+                    _service.UpdateBookById(idForUpdate, updatedBook);
                     break;
                 case "5":
                     Console.WriteLine("No problem, enter id of the book you want to delete!");
                     int idForDelete =Int32.Parse(Console.ReadLine());
-                    service.DeleteBookById(idForDelete);
+                    _service.DeleteBookById(idForDelete);
                     break;
                 case "6":
                     Console.WriteLine("Sure! Enter title of the book you are looking for!");
                     string titleForSearch = Console.ReadLine();
-                    DisplaySingleSearchResult(service.GetBookByTitle(titleForSearch));
+                    DisplaySingleSearchResult(_service.GetBookByTitle(titleForSearch));
                     break;
                 case "7":
                     Console.WriteLine("Sure! Enter author of the book you are looking for!");
                     string author = Console.ReadLine();
-                    DisplaySingleSearchResult(service.GetBookByAuthor(author));
+                    DisplaySingleSearchResult(_service.GetBookByAuthor(author));
                     break;
                 case "8":
                     Console.WriteLine("Ok! Enter id of the book you want to borrow");
                     int idForBorrowing = Int32.Parse(Console.ReadLine());
-                    service.BorrowBook(idForBorrowing);
+                    _service.BorrowBook(idForBorrowing);
                     break;
                 case "9":
-                    Console.WriteLine("Great! Enter id1 of the book you want to return");
+                    Console.WriteLine("Great! Enter id of the book you want to return");
                     int idForReturning = Int32.Parse(Console.ReadLine());
-                    service.ReturnBook(idForReturning);
+                    _service.ReturnBook(idForReturning);
+                    break;
+                case "0":
+                    exit = true;
+                    break;
+            } 
+        } 
+    }
+    
+    public void ShowHighLoadConsoleMenu()
+    {
+        var exit = false;
+
+        while (!exit)
+        {
+            Console.WriteLine("-------------------------------------");
+            Console.WriteLine("You are in a stress mode!");
+            Console.WriteLine("Please choose one of the options you want to stress test:");
+            ShowOptions();
+            string input = Console.ReadLine();
+            
+            switch (input)
+            {
+                case "1":
+                    Console.WriteLine("Sure! Here are all the books!");
+                    DisplayBooks(_service.GetBooks());
+                    break;
+                case "2":
+                    Console.WriteLine("Sure! Here are all available books!");
+                    DisplayBooks(_service.GetBooks(BookStatus.Available));
+                    break;
+                case "3":
+                    Console.WriteLine("Lets create a new book!");
+                    var newBook = CreateBookFromInput();
+                    _highLoadSimulator.AddBookHighLoad(100, newBook);
+                    break;
+                case "4":
+                    Console.WriteLine("Lets update a book, enter an id!");
+                    int idForUpdate =Int32.Parse(Console.ReadLine());
+                    Console.WriteLine("Now enter new value for book!");
+                    var updatedBook = CreateBookFromInput();
+                    _highLoadSimulator.UpdateBookByIdHighLoad(100, idForUpdate, updatedBook);
+                    break;
+                case "5":
+                    Console.WriteLine("No problem, enter id of the book you want to delete!");
+                    int idForDelete =Int32.Parse(Console.ReadLine());
+                    _highLoadSimulator.DeleteBookHighLoad(100, idForDelete);
+                    break;
+                case "6":
+                    Console.WriteLine("Sure! Enter title of the book you are looking for!");
+                    string titleForSearch = Console.ReadLine();
+                    DisplaySingleSearchResult(_service.GetBookByTitle(titleForSearch));
+                    break;
+                case "7":
+                    Console.WriteLine("Sure! Enter author of the book you are looking for!");
+                    string author = Console.ReadLine();
+                    DisplaySingleSearchResult(_service.GetBookByAuthor(author));
+                    break;
+                case "8":
+                    Console.WriteLine("Ok! Enter id of the book you want to borrow");
+                    int idForBorrowing = Int32.Parse(Console.ReadLine());
+                    _highLoadSimulator.BorrowBookHighLoad(100, idForBorrowing);
+                    break;
+                case "9":
+                    Console.WriteLine("Great! Enter id of the book you want to return");
+                    int idForReturning = Int32.Parse(Console.ReadLine());
+                    _highLoadSimulator.ReturnBookHighLoad(100, idForReturning);
                     break;
                 case "0":
                     exit = true;
@@ -77,7 +175,7 @@ public class ConsoleHelper
         Console.WriteLine("1 - List all books in the library");
         Console.WriteLine("2 - List only available books in the library");
         Console.WriteLine("3 - Add new book to the library");
-        Console.WriteLine("4 - Update the book by title");
+        Console.WriteLine("4 - Update the book");
         Console.WriteLine("5 - Delete book from the library");
         Console.WriteLine("6 - Find book by title");
         Console.WriteLine("7 - Find book by author");
