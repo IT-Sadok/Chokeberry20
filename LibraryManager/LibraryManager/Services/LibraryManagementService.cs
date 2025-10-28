@@ -11,14 +11,14 @@ public class LibraryManagementService : ILibraryManagementService
 {
     private readonly string _filePath;
     private readonly List<Book> _books;
-    private readonly object _lockObject;
+    private readonly Lock _lockObject;
 
     public LibraryManagementService(string filePath)
     {
         _filePath = filePath;
         _books = DataStorage.GetAllBooksFromJsonFile(_filePath);
         
-        _lockObject = new  object();
+        _lockObject = new Lock();
     }
 
     public List<Book> GetBooks(BookStatus? status = null)
