@@ -1,4 +1,6 @@
+using LibraryManager.Enums;
 using LibraryManager.Interfaces;
+using LibraryManager.JsonHelpers;
 using LibraryManager.Models;
 
 namespace LibraryManager.Services;
@@ -6,110 +8,72 @@ namespace LibraryManager.Services;
 public class HighLoadSimulator : IHighloadSimulator
 {
     private readonly ILibraryManagementService _libraryService;
+    private readonly Random _random;
     
     public HighLoadSimulator(ILibraryManagementService libraryManagementService)
     { 
         _libraryService = libraryManagementService;   
+        _random = new Random();
     }
 
-    public async Task AddBookHighLoad(int counter, Book newBook)
+    public async Task RunAsync(int taskCounter)
     {
-        var tasks = new List<Task>();
-        var lockObject = new object();
+        var tasks =  new List<Task>();
 
-        for (int i = 0; i < counter; i++)
+        for (int i = 0; i < taskCounter; i++)
         {
-            var bookToAdd = new Book()
-            {
-                Title = newBook.Title,
-                Author = newBook.Author,
-                Year = newBook.Year
-            };
-            tasks.Add(Task.Run(() =>
-            {
-                lock (lockObject)
-                {
-                    _libraryService.AddBook(bookToAdd);
-                }
-            }));
+            int taskId = i;
+            tasks.Add(Task.Run(() => SimulateUserAction(taskId)));
+            
         }
 
         await Task.WhenAll(tasks);
     }
 
-    public async Task UpdateBookByIdHighLoad(int counter, int id, Book updatedBook)
+    private void SimulateUserAction(int taskId)
     {
-        var tasks = new List<Task>();
-        var lockObject = new object();
+        var option = _random.Next(1, 8);
 
-        for (int i = 0; i < counter; i++)
+        try
         {
-            tasks.Add(Task.Run(() =>
+            switch (option)
             {
-                lock (lockObject)
-                {
-                    _libraryService.UpdateBookById(id, updatedBook);
-                }
-            }));
+                case 1:
+                    _libraryService.GetBooks();
+                    break;
+                case 2:
+                    _libraryService.GetBooks(BookStatus.Available);
+                    break;
+                case 3:
+                    _libraryService.AddBook(new Book()
+                    {
+                        Title = "Book",
+                        Author = "Author",
+                        Year = 1000
+                    });
+                    break;
+                case 4:
+                    _libraryService.UpdateBookById(_random.Next(1, 50), new Book()
+                    {
+                        Title = "Updated Book",
+                        Author = "Updated Author",
+                        Year = 2222
+                    });
+                    break;
+                case 5:
+                    _libraryService.DeleteBookById(_random.Next(1, 50));
+                    break;
+                case 6:
+                    _libraryService.BorrowBook(_random.Next(1, 50));
+                    break;
+                case 7:
+                    _libraryService.ReturnBook(_random.Next(1, 50));
+                    break;
+            }
         }
-
-        await Task.WhenAll(tasks);
-    }
-    
-    public async Task DeleteBookHighLoad(int counter,  int id)
-    {
-        var tasks = new List<Task>();
-        var lockObject = new object();
-
-        for (int i = 0; i < counter; i++)
+        catch (Exception e)
         {
-            tasks.Add(Task.Run(() =>
-            {
-                lock (lockObject)
-                {
-                    _libraryService.DeleteBookById(id);
-                }
-            }));
-        }
-
-        await Task.WhenAll(tasks);
-    }
-    
-    public async Task BorrowBookHighLoad(int counter, int id)
-    {
-        var tasks = new List<Task>();
-        var lockObject = new object();
-
-        for (int i = 0; i < counter; i++)
-        {
-            tasks.Add(Task.Run(() =>
-            {
-                lock (lockObject)
-                {
-                    _libraryService.BorrowBook(id);
-                }
-            }));
-        }
-
-        await Task.WhenAll(tasks);
-    }
-    
-    public async Task ReturnBookHighLoad(int counter, int id)
-    {
-        var tasks = new List<Task>();
-        var lockObject = new object();
-
-        for (int i = 0; i < counter; i++)
-        {
-            tasks.Add(Task.Run(() =>
-            {
-                lock (lockObject)
-                {
-                    _libraryService.ReturnBook(id);
-                }
-            }));
-        }
-
-        await Task.WhenAll(tasks);
+            Console.WriteLine($"Error: {e.Message} in task {taskId}!");
+        }        
     }
 }

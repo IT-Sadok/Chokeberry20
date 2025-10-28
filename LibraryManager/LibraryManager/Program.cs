@@ -6,7 +6,7 @@ namespace LibraryManager;
 class Program
 {
     private static readonly string FileName = "booksData.json";
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
         if (File.Exists(FileName))
         {
@@ -26,8 +26,8 @@ class Program
 
         try
         {
-            ConsoleHelper helper = new ConsoleHelper(service, highLoadSimulator);
-            helper.ShowModes();
+            ConsoleHelper helper = new ConsoleHelper(service, highLoadSimulator, 1000);
+            await helper.ShowModesAsync();
         }
         catch(Exception ex)
         {
@@ -36,6 +36,6 @@ class Program
         finally
         {
             service.SaveChanges();
-        }  
+        }
     }
 }

@@ -11,11 +11,14 @@ public class LibraryManagementService : ILibraryManagementService
 {
     private readonly string _filePath;
     private readonly List<Book> _books;
+    private readonly object _lockObject;
 
     public LibraryManagementService(string filePath)
     {
         _filePath = filePath;
         _books = DataStorage.GetAllBooksFromJsonFile(_filePath);
+        
+        _lockObject = new  object();
     }
 
     public List<Book> GetBooks(BookStatus? status = null)
@@ -31,12 +34,7 @@ public class LibraryManagementService : ILibraryManagementService
     public Book GetBookById(int id)
     {
         var book = _books.FirstOrDefault(b => b.Id == id);
-
-        if (book == null)
-        {
-            throw new BookNotFoundException($"Book with id {id} not found!");
-        }
-
+        
         return book;
     }
     
@@ -65,11 +63,14 @@ public class LibraryManagementService : ILibraryManagementService
     }
     public void AddBook(Book book)
     {
-        book.Id = CreateUniqueId();
-            
-        if (InputValidators.AreBookPropertiesValid(book))
+        lock (_lockObject)
         {
-            _books.Add(book);
+            book.Id = CreateUniqueId();
+            
+            if (InputValidators.AreBookPropertiesValid(book))
+            {
+                _books.Add(book);
+            }
         }
     }
 
@@ -78,16 +79,19 @@ public class LibraryManagementService : ILibraryManagementService
         if (InputValidators.AreBookPropertiesValid(updatedBook))
         { 
             var oldBook = _books.FirstOrDefault(b => b.Id == id);
-        
+            
             if (oldBook == null)
             {
                 throw new BookNotFoundException($"Book with id {id} not found!");
             }
             
-            oldBook.Title = updatedBook.Title;
-            oldBook.Author = updatedBook.Author;
-            oldBook.Year = updatedBook.Year;
-            oldBook.Status = updatedBook.Status;
+            lock (_lockObject)
+            {
+                oldBook.Title = updatedBook.Title;
+                oldBook.Author = updatedBook.Author;
+                oldBook.Year = updatedBook.Year;
+                oldBook.Status = updatedBook.Status;
+            }
         }
     }
 
@@ -99,39 +103,61 @@ public class LibraryManagementService : ILibraryManagementService
         {
             throw new BookNotFoundException($"Book with id {id} not found!");
         }
-        
-        _books.RemoveAll(b => b.Id == id);
+
+        lock (_lockObject)
+        {
+            _books.RemoveAll(b => b.Id == id);
+        }
     }
 
     public void BorrowBook(int id)
     {
         var borrowedBook = GetBookById(id);
 
+        if (borrowedBook == null)
+        {
+            throw new BookNotFoundException($"Error during book borrowing. Book with id {id} not found!");
+        }
+
         if (borrowedBook.Status == BookStatus.Borrowed)
         {
             throw new BookAlreadyBorrowedException($"Book with id {id} is already borrowed!");
         }
         
-        borrowedBook.Status = BookStatus.Borrowed;
-        UpdateBookById(id, borrowedBook);
+        lock (_lockObject)
+        {
+            borrowedBook.Status = BookStatus.Borrowed;
+            UpdateBookById(id, borrowedBook);
+        }
     }
     
     public void ReturnBook(int id)
     {
         var borrowedBook = GetBookById(id);
-
+        
+        if (borrowedBook == null)
+        {
+            throw new BookNotFoundException($"Error during book returning. Book with id {id} not found!");
+        }
+        
         if (borrowedBook.Status == BookStatus.Available)
         {
             throw new BookNotBorrowedException($"Book with id {id} is not borrowed yet!");
         }
         
-        borrowedBook.Status = BookStatus.Available;
-        UpdateBookById(id, borrowedBook);
+        lock (_lockObject)
+        {
+            borrowedBook.Status = BookStatus.Available;
+            UpdateBookById(id, borrowedBook);
+        }
     }
 
     public void SaveChanges()
     {
-        DataStorage.AddBooksToJsonFile(_books, _filePath);
+        lock (_lockObject)
+        {
+            DataStorage.AddBooksToJsonFile(_books, _filePath);
+        }
     }
 
     private int CreateUniqueId()
