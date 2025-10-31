@@ -1,3 +1,4 @@
+using LibraryManager.Exceptions;
 using LibraryManager.Models;
 
 namespace LibraryManager.Validators;
@@ -8,15 +9,15 @@ public class InputValidators
     {
         if (book.Year !> DateTime.Now.Year && book.Year !< 0)
         {
-            throw new Exception("Invalid year!");
+            throw new InvalidValueException("Invalid year!");
         }
         else if (!IsStringValid(book.Author))
         {
-            throw new Exception("Invalid author!");
+            throw new InvalidValueException("Invalid author!");
         }
         else if (!IsStringValid(book.Author))
         {
-            throw new Exception("Invalid title!");
+            throw new InvalidValueException("Invalid title!");
         }
 
         return true;
@@ -24,7 +25,7 @@ public class InputValidators
 
     public static bool IsStringValid(string stringToValidate)
     {
-        if (string.IsNullOrEmpty(stringToValidate) && string.IsNullOrWhiteSpace(stringToValidate))
+        if (string.IsNullOrEmpty(stringToValidate) || string.IsNullOrWhiteSpace(stringToValidate))
         {
             return false;
         }

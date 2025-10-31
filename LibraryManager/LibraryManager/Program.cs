@@ -6,8 +6,8 @@ namespace LibraryManager;
 class Program
 {
     private static readonly string FileName = "booksData.json";
-    static void Main(string[] args)
-    {  
+    static async Task Main(string[] args)
+    {
         if (File.Exists(FileName))
         {
             Console.WriteLine("File exists!");
@@ -18,14 +18,16 @@ class Program
             File.WriteAllText(FileName, "");
             Console.WriteLine("File created!");
         }
-        
+
         LibraryManagementService  service = new LibraryManagementService(FileName);
+        HighLoadSimulator highLoadSimulator = new HighLoadSimulator(service);
 
         Console.WriteLine("Welcome to the Library Manager!");
 
         try
         {
-            ConsoleHelper.ShowConsoleMenu(service);
+            ConsoleHelper helper = new ConsoleHelper(service, highLoadSimulator, 1000);
+            await helper.ShowModesAsync();
         }
         catch(Exception ex)
         {
@@ -33,7 +35,7 @@ class Program
         }
         finally
         {
-            service.SaveChanges(); 
-        }        
+            service.SaveChanges();
+        }
     }
 }
