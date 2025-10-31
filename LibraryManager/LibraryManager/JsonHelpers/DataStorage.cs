@@ -30,6 +30,7 @@ public class DataStorage
         
         var books = JsonSerializer.Deserialize<List<Book>>(json);
         listOfBooks.AddRange(books);
+        
         return listOfBooks;
     }
 }
