@@ -8,12 +8,10 @@ namespace LibraryManager.Services;
 public class HighLoadSimulator : IHighloadSimulator
 {
     private readonly ILibraryManagementService _libraryService;
-    private readonly Random _random;
     
     public HighLoadSimulator(ILibraryManagementService libraryManagementService)
     { 
-        _libraryService = libraryManagementService;   
-        _random = new Random();
+        _libraryService = libraryManagementService; 
     }
 
     public async Task RunAsync(int taskCounter)
@@ -23,16 +21,16 @@ public class HighLoadSimulator : IHighloadSimulator
         for (int i = 0; i < taskCounter; i++)
         {
             int taskId = i;
-            tasks.Add(Task.Run(() => SimulateUserAction(taskId)));
+            tasks.Add(SimulateUserAction(taskId));
             
         }
 
         await Task.WhenAll(tasks);
     }
 
-    private void SimulateUserAction(int taskId)
+    private Task SimulateUserAction(int taskId)
     {
-        var option = _random.Next(1, 8);
+        var option = Random.Shared.Next(1, 8);
 
         try
         {
@@ -53,7 +51,7 @@ public class HighLoadSimulator : IHighloadSimulator
                     });
                     break;
                 case 4:
-                    _libraryService.UpdateBookById(_random.Next(1, 50), new Book()
+                    _libraryService.UpdateBookById(Random.Shared.Next(1, 50), new Book()
                     {
                         Title = "Updated Book",
                         Author = "Updated Author",
@@ -61,13 +59,13 @@ public class HighLoadSimulator : IHighloadSimulator
                     });
                     break;
                 case 5:
-                    _libraryService.DeleteBookById(_random.Next(1, 50));
+                    _libraryService.DeleteBookById(Random.Shared.Next(1, 50));
                     break;
                 case 6:
-                    _libraryService.BorrowBook(_random.Next(1, 50));
+                    _libraryService.BorrowBook(Random.Shared.Next(1, 50));
                     break;
                 case 7:
-                    _libraryService.ReturnBook(_random.Next(1, 50));
+                    _libraryService.ReturnBook(Random.Shared.Next(1, 50));
                     break;
             }
         }
@@ -75,5 +73,7 @@ public class HighLoadSimulator : IHighloadSimulator
         {
             Console.WriteLine($"Error: {e.Message} in task {taskId}!");
         }        
+        
+        return Task.CompletedTask;
     }
 }
